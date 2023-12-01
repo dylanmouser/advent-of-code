@@ -12,46 +12,53 @@ internal class Solution : AdventOfCode.Solution
 
     protected override int SolvePart1(string input)
     {
-        return SolveGeneric(input, @"\d");
+        var inputLines = input.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+
+        var total = 0;
+
+        foreach (var line in inputLines)
+        {
+            var lineDigits = line.Where(c => char.IsDigit(c)).ToList();
+            var firstDigit = lineDigits.FirstOrDefault().ToString();
+            var lastDigit = lineDigits.LastOrDefault().ToString();
+            var combinedDigits = firstDigit + lastDigit;
+
+            total += Int32.Parse(combinedDigits);
+        }
+
+        return total;
     }
 
     protected override int SolvePart2(string input)
     {
-        return SolveGeneric(input, @"\d|one|two|three|four|five|six|seven|eight|nine");
-    }
+        var inputLines = input.Split('\n');
+        var regex = @"\d|one|two|three|four|five|six|seven|eight|nine";
 
-    private int SolveGeneric(string input, string regex)
-    {
-        var lines = input.Split(Environment.NewLine);
+        var numbers = inputLines.Select(line => {
+            var firstDigit = Regex.Match(line, regex).Value;
+            var lastDigit = Regex.Match(line, regex, RegexOptions.RightToLeft).Value;
 
-        var numbers = lines.Select(l =>
-        {
-            var firstMatch = Regex.Match(l, regex).Value;
-            var lastMatch = Regex.Match(l, regex, RegexOptions.RightToLeft).Value;
-            var firstNumber = Parse(firstMatch);
-            var lastNumber = Parse(lastMatch);
-            var number = int.Parse($"{firstNumber}{lastNumber}");
-
-            return number;
-        });
+            return Int32.Parse($"{ToDigit(firstDigit)}{ToDigit(lastDigit)}");
+        }).ToList();
 
         return numbers.Sum();
     }
 
-    private int Parse(string match)
+    static string ToDigit(string number)
     {
-        return match switch
+        // Dictionary to map English-written numbers to digits
+        return number.ToLower() switch
         {
-            "one" => 1,
-            "two" => 2,
-            "three" => 3,
-            "four" => 4,
-            "five" => 5,
-            "six" => 6,
-            "seven" => 7,
-            "eight" => 8,
-            "nine" => 9,
-            var number => int.Parse(number),
+            "one" => "1",
+            "two" => "2",
+            "three" => "3",
+            "four" => "4",
+            "five" => "5",
+            "six" => "6",
+            "seven" => "7",
+            "eight" => "8",
+            "nine" => "9",
+            _ => number
         };
     }
 }
